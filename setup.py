@@ -6,7 +6,7 @@ setup(
     author='Sergey Malinkin',
     author_email='malinkinsa@yandex.ru',
     url='https://github.com/malinkinsa/asyncgelf',
-    description='',
+    description='Async python logging handlers that send messages in the Graylog Extended Log Format (GELF).',
     long_description='',
     packages=find_packages(),
     install_requires=[
