@@ -1,1 +1,1 @@
-from .asyncgelf import GelfTcp
+from .asyncgelf import GelfTcp, GelfHttp
