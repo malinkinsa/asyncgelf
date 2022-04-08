@@ -58,4 +58,5 @@ asyncio.run(main(message))
 - ```port``` Optional | Graylog input port (default: 12201);
 - ```gelf_version``` Optional | GELF spec version (default: 1.1)
 - ```level``` Optional | The level equal to the standard syslog levels (default: 1);
-- ```scheme``` Optional | HTTP Scheme for GELF HTTP input only (default: http);
+- ```scheme``` Optional | HTTP Scheme <i>for GELF HTTP input only</i> (default: http);
+- ```compress``` Optional | Compress message before sending it to the server or not <i>for GELF HTTP input only</i> (default: false)

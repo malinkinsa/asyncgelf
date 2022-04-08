@@ -13,7 +13,8 @@ class GelfBase(object):
             port: Optional[int] = 12201,
             gelf_version: Optional[str] = 1.1,
             level: Optional[str] = 1,
-            scheme: Optional[str] = 'http'
+            scheme: Optional[str] = 'http',
+            compress: Optional = False,
     ):
         """
         :param host: graylog server address
@@ -21,6 +22,7 @@ class GelfBase(object):
         :param gelf_version: GELF spec version
         :param level: the level equal to the standard syslog levels
         :param scheme: HTTP Scheme for GELF HTTP input only
+        :param compress: compress message before sending it to the server or not
         """
 
         self.host = host
@@ -29,6 +31,7 @@ class GelfBase(object):
         self.domain = socket.getfqdn()
         self.level = level
         self.scheme = scheme
+        self.compress = compress
 
     def make(self, message):
         """
@@ -74,8 +77,11 @@ class GelfHttp(GelfBase):
         """
         header = {
             'Content-Type': 'application/json',
-            'Content-Encoding': 'gzip,deflate',
         }
+
+        if self.compress:
+            header.update({'Content-Encoding': 'gzip,deflate'})
+
         gelf_message = GelfBase.make(self, message)
         gelf_endpoint = f'{self.scheme}://{self.host}:{self.port}/gelf'
 
