@@ -2,6 +2,7 @@ import asyncio
 import json
 import httpx
 import socket
+import ssl
 
 from typing import Optional
 
@@ -14,6 +15,7 @@ class GelfBase(object):
             gelf_version: Optional[str] = 1.1,
             level: Optional[str] = 1,
             scheme: Optional[str] = 'http',
+            tls: Optional = None,
             compress: Optional = False,
     ):
         """
@@ -22,6 +24,7 @@ class GelfBase(object):
         :param gelf_version: GELF spec version
         :param level: the level equal to the standard syslog levels
         :param scheme: HTTP Scheme for GELF HTTP input only
+        :param tls: Path to custom (self-signed) certificate in pem format
         :param compress: compress message before sending it to the server or not
         """
 
@@ -32,6 +35,7 @@ class GelfBase(object):
         self.level = level
         self.scheme = scheme
         self.compress = compress
+        self.tls = tls
 
     def make(self, message):
         """
@@ -83,6 +87,21 @@ class GelfHttp(GelfBase):
             header.update({'Content-Encoding': 'gzip,deflate'})
 
         gelf_message = GelfBase.make(self, message)
+
+        if self.tls:
+            ssl_contex = ssl.create_default_context()
+            ssl_contex.load_verify_locations(cafile=self.tls)
+
+            gelf_endpoint = f'https://{self.host}:{self.port}/gelf'
+
+            async with httpx.AsyncClient(verify=ssl_contex) as client:
+                response = await client.post(
+                    gelf_endpoint,
+                    headers=header,
+                    data=json.dumps(gelf_message),
+                )
+                return response.status_code
+
         gelf_endpoint = f'{self.scheme}://{self.host}:{self.port}/gelf'
 
         async with httpx.AsyncClient() as client:
