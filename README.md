@@ -1,4 +1,7 @@
 # AsyncGELF
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/malinkinsa/asyncgelf.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/malinkinsa/asyncgelf/context:python)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/asyncgelf)
+![PyPI](https://img.shields.io/pypi/v/asyncgelf)
 
 Async python logging handlers that send messages in the Graylog Extended Log Format (GELF).
 
