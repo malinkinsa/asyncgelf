@@ -17,6 +17,7 @@ class GelfBase(object):
             scheme: Optional[str] = 'http',
             tls: Optional = None,
             compress: Optional = False,
+            debug: Optional = False
     ):
         """
         :param host: graylog server address
@@ -26,6 +27,7 @@ class GelfBase(object):
         :param scheme: HTTP Scheme for GELF HTTP input only
         :param tls: Path to custom (self-signed) certificate in pem format
         :param compress: compress message before sending it to the server or not
+        :param debug: additional information in error log
         """
 
         self.host = host
@@ -36,6 +38,7 @@ class GelfBase(object):
         self.scheme = scheme
         self.compress = compress
         self.tls = tls
+        self.debug = debug
 
     def make(self, message):
         """
@@ -63,13 +66,46 @@ class GelfTcp(GelfBase):
         """ Transforming GELF dictionary into bytes """
         bytes_msg = json.dumps(gelf_message).encode('utf-8')
 
-        stream_reader, stream_writer = await asyncio.open_connection(
-            self.host, self.port
-        )
+        if self.tls:
+            ssl_contex = ssl.create_default_context()
+            ssl_contex.load_verify_locations(cafile=self.tls)
 
-        """ if you send the message over tcp, it should always be null terminated or the input will reject it """
-        stream_writer.write(bytes_msg + b'\x00')
-        stream_writer.close()
+            try:
+                stream_reader, stream_writer = await asyncio.open_connection(
+                    self.host,
+                    self.port,
+                    ssl=ssl_contex,
+                )
+
+                """ 
+                if you send the message over tcp, it should always be null terminated or the input will reject it 
+                """
+                stream_writer.write(bytes_msg + b'\x00')
+                stream_writer.close()
+
+            except Exception as e:
+                if self.debug:
+                    return f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}"
+
+                return getattr(e, 'message', repr(e))
+
+        try:
+            stream_reader, stream_writer = await asyncio.open_connection(
+                self.host,
+                self.port,
+            )
+
+            """ 
+            if you send the message over tcp, it should always be null terminated or the input will reject it 
+            """
+            stream_writer.write(bytes_msg + b'\x00')
+            stream_writer.close()
+
+        except Exception as e:
+            if self.debug:
+                return f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}"
+
+            return getattr(e, 'message', repr(e))
 
 
 class GelfHttp(GelfBase):
@@ -94,20 +130,36 @@ class GelfHttp(GelfBase):
 
             gelf_endpoint = f'https://{self.host}:{self.port}/gelf'
 
-            async with httpx.AsyncClient(verify=ssl_contex) as client:
+            try:
+                async with httpx.AsyncClient(verify=ssl_contex) as client:
+                    response = await client.post(
+                        gelf_endpoint,
+                        headers=header,
+                        data=json.dumps(gelf_message),
+                    )
+
+                    return response.status_code
+
+            except Exception as e:
+                if self.debug:
+                    return f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}"
+
+                return getattr(e, 'message', repr(e))
+
+        gelf_endpoint = f'{self.scheme}://{self.host}:{self.port}/gelf'
+
+        try:
+            async with httpx.AsyncClient() as client:
                 response = await client.post(
                     gelf_endpoint,
                     headers=header,
                     data=json.dumps(gelf_message),
                 )
+
                 return response.status_code
 
-        gelf_endpoint = f'{self.scheme}://{self.host}:{self.port}/gelf'
+        except Exception as e:
+            if self.debug:
+                return f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}"
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                gelf_endpoint,
-                headers=header,
-                data=json.dumps(gelf_message),
-            )
-            return response.status_code
+            return getattr(e, 'message', repr(e))
