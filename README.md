@@ -14,8 +14,8 @@ Async python logging handlers that send messages in the Graylog Extended Log For
     - [Available params](#available-params)
 
 ## List of ready to run GELF handlers
-- TCP (without TLS);
-- HTTP;  
+- TCP (with and without TLS);
+- HTTP (with and without TLS);
 
 ## Get AsyncGELF
 ```python
@@ -62,5 +62,6 @@ asyncio.run(main(message))
 - ```gelf_version``` Optional | GELF spec version (default: 1.1)
 - ```level``` Optional | The level equal to the standard syslog levels (default: 1);
 - ```scheme``` Optional | HTTP Scheme <i>for GELF HTTP input only</i> (default: http);
-- ```tls``` Path to custom (self-signed) certificate in pem format <i>for GELF HTTP input only</i> (default: None)
-- ```compress``` Optional | Compress message before sending it to the server or not <i>for GELF HTTP input only</i> (default: false)
+- ```tls``` Optional | Path to custom (self-signed) certificate in pem format (default: None)
+- ```compress``` Optional | Compress message before sending it to the server or not <i>for GELF HTTP input only</i> (default: False)
+- ```debug``` Optional | Additional information in error log (default: False)
