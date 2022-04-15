@@ -2,16 +2,16 @@ from setuptools import setup, find_packages
 
 setup(
     name='asyncgelf',
-    version='0.1.3',
+    version='0.2.0',
     author='Sergey Malinkin',
     author_email='malinkinsa@yandex.ru',
     url='https://github.com/malinkinsa/asyncgelf',
-    download_url='https://github.com/malinkinsa/asyncgelf/archive/refs/tags/0.1.3.tar.gz',
+    download_url='https://github.com/malinkinsa/asyncgelf/archive/refs/tags/0.2.0.tar.gz',
     description='Async python logging handlers that send messages in the Graylog Extended Log Format (GELF).',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     license='MIT',
-    keywords='gelf logging graylog graylog2 tcp http',
+    keywords='gelf logging graylog graylog2 tcp udp http',
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
