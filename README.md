@@ -11,11 +11,13 @@ Async python logging handlers that send messages in the Graylog Extended Log For
   - [Usage](#usage)
     - [GELF TCP](#gelf-tcp)
     - [GELF HTTP](#gelf-http)
+    - [GELF UDP](#gelf-udp)
     - [Available params](#available-params)
 
 ## List of ready to run GELF handlers
 - TCP (with and without TLS);
 - HTTP (with and without TLS);
+- UDP
 
 ## Get AsyncGELF
 ```python
@@ -56,6 +58,21 @@ async def main(message):
 asyncio.run(main(message))
 ```
 
+### GELF UDP
+```python
+import asyncio
+import asyncgelf
+
+async def main(message):
+    handler = asyncgelf.GelfUdp(
+        host='127.0.0.1',
+    )
+
+    await handler.udp_handler(message)
+
+asyncio.run(main(message))
+```
+
 ### Available params
 - ```host``` Requaried | Graylog server address;
 - ```port``` Optional | Graylog input port (default: 12201);
@@ -63,5 +80,5 @@ asyncio.run(main(message))
 - ```level``` Optional | The level equal to the standard syslog levels (default: 1);
 - ```scheme``` Optional | HTTP Scheme <i>for GELF HTTP input only</i> (default: http);
 - ```tls``` Optional | Path to custom (self-signed) certificate in pem format (default: None)
-- ```compress``` Optional | Compress message before sending it to the server or not <i>for GELF HTTP input only</i> (default: False)
+- ```compress``` Optional | Compress message before sending it to the server or not (default: False)
 - ```debug``` Optional | Additional information in error log (default: False)
