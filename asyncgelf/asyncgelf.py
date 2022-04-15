@@ -64,7 +64,7 @@ class GelfTcp(GelfBase):
         """
         tcp handler for send logs to Graylog Input with type: gelf tcp
         :param massage: input message
-        :return:
+        :return: Exception
         """
         gelf_message = GelfBase.make(self, massage)
         """ Transforming GELF dictionary into bytes """
@@ -201,9 +201,15 @@ class GelfUdp(GelfBase):
             chunks = [bytes(bytes_msg)[i: i + max_chunk_size] for i in range(0, len(bytes(bytes_msg)), max_chunk_size)]
 
             async for i in self.make_gelf_chunks(chunks, total_chunks):
-                client_socket.sendto(i, (self.host, self.port))
+                client_socket.sendto(i, (
+                    self.host,
+                    self.port
+                ))
 
-        client_socket.sendto(bytes_msg, (self.host, self.port))
+        client_socket.sendto(bytes_msg, (
+            self.host,
+            self.port
+        ))
 
     async def make_gelf_chunks(self, chunks, total_chunks):
         """
