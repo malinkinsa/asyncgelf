@@ -1,8 +1,12 @@
 import asyncio
-import json
 import httpx
+import json
+import math
+import os
 import socket
 import ssl
+import struct
+import zlib
 
 from typing import Optional
 
@@ -163,3 +167,58 @@ class GelfHttp(GelfBase):
                 return f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}"
 
             return getattr(e, 'message', repr(e))
+
+
+class GelfUdp(GelfBase):
+    async def udp_handler(self, message):
+        """
+        UDP handler for send logs to Graylog Input with type: gelf udp
+        :param message: input message
+        :return: Message send error in next case: message size more than 1048576 bytes
+        """
+        """
+        Declaring limits for GELF messages
+        """
+        max_chunk_size = 8192
+        max_chunk_count = 128
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        gelf_message = GelfBase.make(self, message)
+        bytes_msg = json.dumps(gelf_message).encode('utf-8')
+
+        if self.compress:
+            bytes_msg = zlib.compress(bytes_msg, level=1)
+        """
+        Checking the message size. 
+        """
+        if len(bytes_msg) > max_chunk_size:
+            total_chunks = int(math.ceil(len(bytes_msg) / max_chunk_size))
+
+            if total_chunks > max_chunk_count:
+                return "Error. Your message couldn't be sent because it's too large."
+
+            chunks = [bytes(bytes_msg)[i: i + max_chunk_size] for i in range(0, len(bytes(bytes_msg)), max_chunk_size)]
+
+            async for i in self.make_gelf_chunks(chunks, total_chunks):
+                client_socket.sendto(i, (self.host, self.port))
+
+        client_socket.sendto(bytes_msg, (self.host, self.port))
+
+    async def make_gelf_chunks(self, chunks, total_chunks):
+        """
+        Each chunk is padded with overhead to match the GELF specification.
+        :param chunks: Chunked gelf_message
+        :param total_chunks: The total number of chunks a GELF message requires to send
+        :return:
+        """
+        message_id = os.urandom(8)
+
+        for chunk_index, chunk in enumerate(chunks):
+            yield b''.join((
+                b'\0x1e\0x0f',
+                message_id,
+                struct.pack('b', chunk_index),
+                struct.pack('b', total_chunks),
+                chunk
+            ))
