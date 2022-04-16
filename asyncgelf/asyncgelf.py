@@ -20,8 +20,8 @@ class GelfBase(object):
             level: Optional[str] = 1,
             scheme: Optional[str] = 'http',
             tls: Optional = None,
-            compress: Optional = False,
-            debug: Optional = False
+            compress: Optional[bool] = False,
+            debug: Optional[bool] = False
     ):
         """
         :param host: graylog server address
