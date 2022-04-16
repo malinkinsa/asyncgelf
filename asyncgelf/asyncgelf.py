@@ -70,6 +70,9 @@ class GelfTcp(GelfBase):
         """ Transforming GELF dictionary into bytes """
         bytes_msg = json.dumps(gelf_message).encode('utf-8')
 
+        if self.compress:
+            bytes_msg = zlib.compress(bytes_msg, level=1)
+
         if self.tls:
             ssl_contex = ssl.create_default_context()
             ssl_contex.load_verify_locations(cafile=self.tls)
