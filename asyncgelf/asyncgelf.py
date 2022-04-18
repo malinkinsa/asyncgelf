@@ -3,12 +3,13 @@ import httpx
 import json
 import math
 import os
+import re
 import socket
 import ssl
 import struct
 import zlib
 
-from typing import Optional
+from typing import Optional, Dict
 
 
 class GelfBase(object):
@@ -20,8 +21,9 @@ class GelfBase(object):
             level: Optional[str] = 1,
             scheme: Optional[str] = 'http',
             tls: Optional = None,
-            compress: Optional = False,
-            debug: Optional = False
+            compress: Optional[bool] = False,
+            debug: Optional[bool] = False,
+            additional_field: Optional[Dict] = None
     ):
         """
         :param host: graylog server address
@@ -32,6 +34,7 @@ class GelfBase(object):
         :param tls: Path to custom (self-signed) certificate in pem format
         :param compress: compress message before sending it to the server or not
         :param debug: additional information in error log
+        :param additional_field: dictionary with additional fields which will be added to every gelf message
         """
 
         self.host = host
@@ -43,6 +46,30 @@ class GelfBase(object):
         self.compress = compress
         self.tls = tls
         self.debug = debug
+        self.additional_field = additional_field
+
+        """
+        Gelf compliance checks:
+            - All keys must start with underscore (_) prefix;
+            - _id can't be additional field;
+            - Allowed characters in field names are any word character (letter, number, underscore), dashes and dots.
+        """
+        if self.additional_field:
+            prefix_pattern = re.compile(r'^_.*$')
+            character_pattern = re.compile(r'^[\w\.\-]*$')
+            id_pattern = re.compile(r'^_id$')
+
+            for k, v in self.additional_field.items():
+                if prefix_pattern.search(k) is None:
+                    exit('Error. Allowed only names started with underscore (_)')
+
+                if character_pattern.search(k) is None:
+                    exit('Error. One or more additional fields contain unsupported character. '
+                         'Allowed characters in field names are any word character (letter, number, underscore), '
+                         'dashes and dots.')
+
+                if id_pattern.search(k):
+                    exit("Error. Don't allowed to send _id as additional field.")
 
     def make(self, message):
         """
@@ -56,6 +83,11 @@ class GelfBase(object):
             'short_message': json.dumps(message),
             'level': self.level,
         }
+
+        if self.additional_field:
+            for k, v in self.additional_field.items():
+                gelf_message.update({k: v})
+
         return gelf_message
 
 
@@ -69,6 +101,9 @@ class GelfTcp(GelfBase):
         gelf_message = GelfBase.make(self, massage)
         """ Transforming GELF dictionary into bytes """
         bytes_msg = json.dumps(gelf_message).encode('utf-8')
+
+        if self.compress:
+            bytes_msg = zlib.compress(bytes_msg, level=1)
 
         if self.tls:
             ssl_contex = ssl.create_default_context()

@@ -12,12 +12,13 @@ Async python logging handlers that send messages in the Graylog Extended Log For
     - [GELF TCP](#gelf-tcp)
     - [GELF HTTP](#gelf-http)
     - [GELF UDP](#gelf-udp)
+    - [Additional field](#additional-field)
     - [Available params](#available-params)
 
 ## List of ready to run GELF handlers
 - TCP (with and without TLS);
 - HTTP (with and without TLS);
-- UDP
+- UDP;
 
 ## Get AsyncGELF
 ```python
@@ -73,6 +74,33 @@ async def main(message):
 asyncio.run(main(message))
 ```
 
+### Additional field
+
+Expect dict with next moments:
+- All keys must start with underscore (_) prefix;
+- ```_id``` can't be additional field;
+- Allowed characters in field names are any word character (letter, number, underscore), dashes and dots
+
+```python
+import asyncio
+import asyncgelf
+
+async def main(message):
+    additional_field = {
+      '_key_1': 'value_1',
+      '_key_2': 'value_2',
+    }
+    
+    handler = asyncgelf.GelfTcp(
+        host='127.0.0.1',
+        additional_field=additional_field
+    )
+
+    await handler.tcp_handler(message)
+
+asyncio.run(main(message))
+```
+
 ### Available params
 - ```host``` Requaried | Graylog server address;
 - ```port``` Optional | Graylog input port (default: 12201);
@@ -82,3 +110,4 @@ asyncio.run(main(message))
 - ```tls``` Optional | Path to custom (self-signed) certificate in pem format (default: None)
 - ```compress``` Optional | Compress message before sending it to the server or not (default: False)
 - ```debug``` Optional | Additional information in error log (default: False)
+- ```additional_field``` Optional | Dictionary with additional fields which will be added to every gelf message (default: None)
