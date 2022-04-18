@@ -74,7 +74,13 @@ async def main(message):
 asyncio.run(main(message))
 ```
 
-### Additional field 
+### Additional field
+
+Expect dict with next moments:
+- All keys must start with underscore (_) prefix;
+- ```_id``` can't be additional field;
+- Allowed characters in field names are any word character (letter, number, underscore), dashes and dots
+
 ```python
 import asyncio
 import asyncgelf

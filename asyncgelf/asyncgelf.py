@@ -52,7 +52,7 @@ class GelfBase(object):
         Gelf compliance checks:
             - All keys must start with underscore (_) prefix;
             - _id can't be additional field;
-            - Allowed characters in field names are any word character (letter, number, underscore), 'dashes and dots.
+            - Allowed characters in field names are any word character (letter, number, underscore), dashes and dots.
         """
         if self.additional_field:
             prefix_pattern = re.compile(r'^_.*$')
