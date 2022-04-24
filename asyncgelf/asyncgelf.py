@@ -36,9 +36,9 @@ class GelfBase(object):
         :param compress: compress message before sending it to the server or not
         :param debug: additional information in error log
         :param additional_field: dictionary with additional fields which will be added to every gelf message
-        :param dns_resolve: If enabled - on initialization will be resolved to ip and variable will be updated.
-            By default, UDP handler gets resolved by DNS on every log message. See more:
-            https://github.com/python/cpython/issues/91305
+        :param dns_resolve: If enabled - Variable host will be checked to existence DNS as parameter, and if dns is
+            found, than on initialization will resolve to ip and variable will be updated. By default, UDP handler gets
+            resolved by DNS on every log message. See more: https://github.com/python/cpython/issues/91305
         """
 
         self.host = host
