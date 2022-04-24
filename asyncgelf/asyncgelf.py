@@ -23,7 +23,8 @@ class GelfBase(object):
             tls: Optional = None,
             compress: Optional[bool] = False,
             debug: Optional[bool] = False,
-            additional_field: Optional[Dict] = None
+            additional_field: Optional[Dict] = None,
+            dns_resolve: Optional[bool] = False,
     ):
         """
         :param host: graylog server address
@@ -35,6 +36,9 @@ class GelfBase(object):
         :param compress: compress message before sending it to the server or not
         :param debug: additional information in error log
         :param additional_field: dictionary with additional fields which will be added to every gelf message
+        :param dns_resolve: If enabled - Variable host will be checked to existence DNS as parameter, and if dns is
+            found, than on initialization will resolve to ip and variable will be updated. By default, UDP handler gets
+            resolved by DNS on every log message. See more: https://github.com/python/cpython/issues/91305
         """
 
         self.host = host
@@ -47,6 +51,7 @@ class GelfBase(object):
         self.tls = tls
         self.debug = debug
         self.additional_field = additional_field
+        self.dns_resolve = dns_resolve
 
         """
         Gelf compliance checks:
@@ -70,6 +75,19 @@ class GelfBase(object):
 
                 if id_pattern.search(k):
                     exit("Error. Don't allowed to send _id as additional field.")
+
+        """
+        If dns_resolve = True. 
+        Checking the self.host variable for presence DNS name. If found - dns recorde be resolved to ip and override in 
+        self.host 
+        """
+        if self.dns_resolve:
+            hostname_pattern = re.compile(
+                r'^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$'
+            )
+
+            if hostname_pattern.search(self.host):
+                self.host = socket.gethostbyname(self.host)
 
     def make(self, message):
         """
