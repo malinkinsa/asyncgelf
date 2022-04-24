@@ -102,7 +102,7 @@ asyncio.run(main(message))
 ```
 
 ### Available params
-- ```host``` Requaried | Graylog server address;
+- ```host``` Required | Graylog server address;
 - ```port``` Optional | Graylog input port (default: 12201);
 - ```gelf_version``` Optional | GELF spec version (default: 1.1)
 - ```level``` Optional | The level equal to the standard syslog levels (default: 1);
@@ -111,3 +111,4 @@ asyncio.run(main(message))
 - ```compress``` Optional | Compress message before sending it to the server or not (default: False)
 - ```debug``` Optional | Additional information in error log (default: False)
 - ```additional_field``` Optional | Dictionary with additional fields which will be added to every gelf message (default: None)
+- ```dns_resolve``` Optional | Variable host will be checked to existence DNS as parameter, and if dns is found, than on initialization will resolve to ip and variable will be updated. By default, UDP handler gets resolved by DNS on every log message. See more: [#91305](https://github.com/python/cpython/issues/91305) (default: False)
