@@ -76,9 +76,9 @@ asyncio.run(main(message))
 
 ### Additional field
 
-Expect dict with next moments:
+Expect Dict with the following moments:
 - All keys must start with underscore (_) prefix;
-- ```_id``` can't be additional field;
+- ```_id``` can't be an additional field;
 - Allowed characters in field names are any word character (letter, number, underscore), dashes and dots
 
 ```python
@@ -105,10 +105,10 @@ asyncio.run(main(message))
 - ```host``` Required | Graylog server address;
 - ```port``` Optional | Graylog input port (default: 12201);
 - ```gelf_version``` Optional | GELF spec version (default: 1.1)
-- ```level``` Optional | The level equal to the standard syslog levels (default: 1);
+- ```level``` Optional | The level equals to the standard syslog levels (default: 1);
 - ```scheme``` Optional | HTTP Scheme <i>for GELF HTTP input only</i> (default: http);
 - ```tls``` Optional | Path to custom (self-signed) certificate in pem format (default: None)
 - ```compress``` Optional | Compress message before sending it to the server or not (default: False)
 - ```debug``` Optional | Additional information in error log (default: False)
 - ```additional_field``` Optional | Dictionary with additional fields which will be added to every gelf message (default: None)
-- ```dns_resolve``` Optional | Variable host will be checked to existence DNS as parameter, and if dns is found, than on initialization will resolve to ip and variable will be updated. By default, UDP handler gets resolved by DNS on every log message. See more: [#91305](https://github.com/python/cpython/issues/91305) (default: False)
+- ```dns_resolve``` Optional | Variable host will be checked to existing DNS as parameter and if dns is found, then on initialization will resolve to ip and variable will be updated. By default, UDP handler gets resolved by DNS on every log message. See more: [#91305](https://github.com/python/cpython/issues/91305) (default: False)
