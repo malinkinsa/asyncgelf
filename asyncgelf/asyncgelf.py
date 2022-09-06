@@ -60,9 +60,9 @@ class GelfBase(object):
             - Allowed characters in field names are any word character (letter, number, underscore), dashes and dots.
         """
         if self.additional_field:
-            prefix_pattern = re.compile(r'^_.*$')
+            prefix_pattern = re.compile(r'^_')
             character_pattern = re.compile(r'^[\w\.\-]*$')
-            id_pattern = re.compile(r'^_id$')
+            id_pattern = re.compile(r'^_id\b')
 
             for k, v in self.additional_field.items():
                 if prefix_pattern.search(k) is None:
