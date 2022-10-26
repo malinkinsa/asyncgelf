@@ -4,6 +4,8 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/asyncgelf)
 ![PyPI](https://img.shields.io/pypi/v/asyncgelf)
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/asyncgelf)
+
 Async python logging handlers that send messages in the Graylog Extended Log Format (GELF).
 
 - [AsyncGELF](#asyncgelf)
