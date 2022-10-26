@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='asyncgelf',
-    version='1.0.2',
+    version='1.0.3',
     author='Sergey Malinkin',
     author_email='malinkinsa@yandex.ru',
     url='https://github.com/malinkinsa/asyncgelf',
@@ -13,6 +13,7 @@ setup(
     license='MIT',
     keywords='gelf logging graylog graylog2 tcp udp http',
     classifiers=[
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
@@ -20,6 +21,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Logging',
     ],
