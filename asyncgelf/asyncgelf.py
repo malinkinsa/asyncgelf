@@ -110,59 +110,46 @@ class GelfBase(object):
 
 
 class GelfTcp(GelfBase):
-    async def tcp_handler(self, massage):
+    async def tcp_handler(self, messages):
         """
         tcp handler for send logs to Graylog Input with type: gelf tcp
-        :param massage: input message
+        :param messages: input message
         :return: Exception
         """
-        gelf_message = GelfBase.make(self, massage)
-        """ Transforming GELF dictionary into bytes """
-        bytes_msg = json.dumps(gelf_message).encode('utf-8')
-
-        if self.compress:
-            bytes_msg = zlib.compress(bytes_msg, level=1)
-
-        if self.tls:
-            ssl_contex = ssl.create_default_context()
-            ssl_contex.load_verify_locations(cafile=self.tls)
-
-            try:
-                stream_reader, stream_writer = await asyncio.open_connection(
-                    self.host,
-                    self.port,
-                    ssl=ssl_contex,
-                )
-
-                """ 
-                if you send the message over tcp, it should always be null terminated or the input will reject it 
-                """
-                stream_writer.write(bytes_msg + b'\x00')
-                stream_writer.close()
-
-            except Exception as e:
-                if self.debug:
-                    return f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}"
-
-                return getattr(e, 'message', repr(e))
 
         try:
-            stream_reader, stream_writer = await asyncio.open_connection(
-                self.host,
-                self.port,
-            )
+            if self.tls:
+                ssl_contex = ssl.create_default_context()
+                ssl_contex.load_verify_locations(cafile=self.tls)
+                stream_reader, stream_writer = await asyncio.open_connection(
+                    self.host, self.port, ssl=ssl_contex,
+                )
 
-            """ 
-            if you send the message over tcp, it should always be null terminated or the input will reject it 
-            """
-            stream_writer.write(bytes_msg + b'\x00')
-            stream_writer.close()
+            else:
+                stream_reader, stream_writer = await asyncio.open_connection(
+                    self.host, self.port,
+                )
 
         except Exception as e:
             if self.debug:
                 return f"{type(e).__name__} at line {e.__traceback__.tb_lineno} of {__file__}: {e}"
 
             return getattr(e, 'message', repr(e))
+
+        for message in messages:
+            gelf_message = GelfBase.make(self, message)
+            """ Transforming GELF dictionary into bytes """
+            bytes_msg = json.dumps(gelf_message).encode('utf-8')
+
+            if self.compress:
+                bytes_msg = zlib.compress(bytes_msg, level=1)
+
+            """ 
+            if you send the message over tcp, it should always be null terminated or the input will reject it 
+            """
+            stream_writer.write(bytes_msg + b'\x00')
+
+        stream_writer.close()
 
 
 class GelfHttp(GelfBase):
@@ -227,7 +214,7 @@ class GelfUdp(GelfBase):
         """
         UDP handler for send logs to Graylog Input with type: gelf udp
         :param message: input message
-        :return: Message send error in next case: message size more than 1048576 bytes
+        :return: error in next case: message size more than 1048576 bytes
         """
         """
         Declaring limits for GELF messages
