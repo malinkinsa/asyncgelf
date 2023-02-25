@@ -1,5 +1,4 @@
 # AsyncGELF
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/malinkinsa/asyncgelf.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/malinkinsa/asyncgelf/context:python)
 [![CodeQL](https://github.com/malinkinsa/asyncgelf/actions/workflows/codeql-analysis.yml/badge.svg?branch=master)](https://github.com/malinkinsa/asyncgelf/actions/workflows/codeql-analysis.yml)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/asyncgelf)
 ![PyPI](https://img.shields.io/pypi/v/asyncgelf)
