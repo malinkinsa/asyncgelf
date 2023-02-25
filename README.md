@@ -1,5 +1,4 @@
 # AsyncGELF
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/malinkinsa/asyncgelf.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/malinkinsa/asyncgelf/context:python)
 [![CodeQL](https://github.com/malinkinsa/asyncgelf/actions/workflows/codeql-analysis.yml/badge.svg?branch=master)](https://github.com/malinkinsa/asyncgelf/actions/workflows/codeql-analysis.yml)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/asyncgelf)
 ![PyPI](https://img.shields.io/pypi/v/asyncgelf)
@@ -112,6 +111,7 @@ asyncio.run(main(message))
 - ```scheme``` Optional | HTTP Scheme <i>for GELF HTTP input only</i> (default: http);
 - ```tls``` Optional | Path to custom (self-signed) certificate in pem format (default: None)
 - ```compress``` Optional | Compress message before sending it to the server or not (default: False)
+- ```compress_level``` Optional | Set compression level: available from 1 (BEST_SPEED) to 9 (BEST_COMPRESSION) (default: 1)
 - ```debug``` Optional | Additional information in error log (default: False)
 - ```additional_field``` Optional | Dictionary with additional fields which will be added to every gelf message (default: None)
 - ```dns_resolve``` Optional | Variable host will be checked to existing DNS as parameter and if dns is found, then on initialization will resolve to ip and variable will be updated. By default, UDP handler gets resolved by DNS on every log message. See more: [#91305](https://github.com/python/cpython/issues/91305) (default: False)
