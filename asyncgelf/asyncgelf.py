@@ -22,6 +22,7 @@ class GelfBase(object):
             scheme: Optional[str] = 'http',
             tls: Optional = None,
             compress: Optional[bool] = False,
+            compress_level: Optional[int] = 1,
             debug: Optional[bool] = False,
             additional_field: Optional[Dict] = None,
             dns_resolve: Optional[bool] = False,
@@ -34,6 +35,7 @@ class GelfBase(object):
         :param scheme: HTTP Scheme for GELF HTTP input only
         :param tls: Path to custom (self-signed) certificate in pem format
         :param compress: compress message before sending it to the server or not
+        :param compress_level: set compression level: available from 1 (BEST_SPEED) to 9 (BEST_COMPRESSION)
         :param debug: additional information in error log
         :param additional_field: dictionary with additional fields which will be added to every gelf message
         :param dns_resolve: If enabled - Variable host will be checked to existence DNS as parameter, and if dns is
@@ -48,6 +50,7 @@ class GelfBase(object):
         self.level = level
         self.scheme = scheme
         self.compress = compress
+        self.compress_level = compress_level
         self.tls = tls
         self.debug = debug
         self.additional_field = additional_field
@@ -110,12 +113,21 @@ class GelfBase(object):
 
 
 class GelfTcp(GelfBase):
-    async def tcp_handler(self, messages):
+    async def tcp_handler(self, message):
         """
         tcp handler for send logs to Graylog Input with type: gelf tcp
-        :param messages: input message
+        :param message: message to send, can be list, str, dict
         :return: Exception
         """
+        messages = []
+        """
+        Input type checking
+        """
+        if type(message) is not list:
+            messages.append(message)
+
+        else:
+            messages = message
 
         try:
             if self.tls:
@@ -142,8 +154,7 @@ class GelfTcp(GelfBase):
             bytes_msg = json.dumps(gelf_message).encode('utf-8')
 
             if self.compress:
-                bytes_msg = zlib.compress(bytes_msg, level=1)
-
+                bytes_msg = zlib.compress(bytes_msg, level=self.compress_level)
             """ 
             if you send the message over tcp, it should always be null terminated or the input will reject it 
             """
@@ -228,7 +239,7 @@ class GelfUdp(GelfBase):
         bytes_msg = json.dumps(gelf_message).encode('utf-8')
 
         if self.compress:
-            bytes_msg = zlib.compress(bytes_msg, level=1)
+            bytes_msg = zlib.compress(bytes_msg, level=self.compress_level)
         """
         Checking the message size. 
         """
