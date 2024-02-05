@@ -26,6 +26,7 @@ class GelfBase(object):
             debug: Optional[bool] = False,
             additional_field: Optional[Dict] = None,
             dns_resolve: Optional[bool] = False,
+            timestamp: Optional[int] = None,
     ):
         """
         :param host: graylog server address
@@ -41,6 +42,8 @@ class GelfBase(object):
         :param dns_resolve: If enabled - Variable host will be checked to existence DNS as parameter, and if dns is
             found, than on initialization will resolve to ip and variable will be updated. By default, UDP handler gets
             resolved by DNS on every log message. See more: https://github.com/python/cpython/issues/91305
+        :param timestamp: Seconds since UNIX epoch with optional decimal places for milliseconds 
+            E.g. int(datetime.strptime( <variable_time>, <timeformat>).timestamp())
         """
 
         self.host = host
@@ -55,6 +58,7 @@ class GelfBase(object):
         self.debug = debug
         self.additional_field = additional_field
         self.dns_resolve = dns_resolve
+        self.timestamp = timestamp
 
         """
         Gelf compliance checks:
@@ -91,6 +95,12 @@ class GelfBase(object):
 
             if hostname_pattern.search(self.host):
                 self.host = socket.gethostbyname(self.host)
+        
+        """
+        Checking that timestamp is integer
+        """        
+        if self.timestamp:
+            self.timestamp = int(self.timestamp)
 
     def make(self, message):
         """
@@ -108,7 +118,10 @@ class GelfBase(object):
         if self.additional_field:
             for k, v in self.additional_field.items():
                 gelf_message.update({k: v})
-
+        
+        if self.timestamp:
+            gelf_message.update({'timestamp': self.timestamp})
+        
         return gelf_message
 
 
