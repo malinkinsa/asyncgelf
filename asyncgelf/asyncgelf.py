@@ -92,10 +92,12 @@ class GelfBase(object):
             if hostname_pattern.search(self.host):
                 self.host = socket.gethostbyname(self.host)
 
-    def make(self, message):
+    def make(self, message, timestamp: Optional = None):
         """
         Transforms each message into GELF
         :param message: input message
+        :param timestamp: event timestamp in the format: seconds since UNIX epoch with optional decimal places for
+        milliseconds
         :return: a dictionary representing a GELF log
         """
         gelf_message = {
@@ -109,14 +111,21 @@ class GelfBase(object):
             for k, v in self.additional_field.items():
                 gelf_message.update({k: v})
 
+        if timestamp:
+            timestamp_pattern = r"^\d+(\.\d+)?$"
+            if re.match(timestamp_pattern, str(timestamp)):
+                gelf_message.update({'timestamp': timestamp})
+
         return gelf_message
 
 
 class GelfTcp(GelfBase):
-    async def tcp_handler(self, message):
+    async def tcp_handler(self, message, timestamp: Optional = None):
         """
         tcp handler for send logs to Graylog Input with type: gelf tcp
         :param message: message to send, can be list, str, dict
+        :param timestamp: event timestamp in the format: seconds since UNIX epoch with optional decimal places for
+        milliseconds
         :return: Exception
         """
         messages = []
@@ -149,7 +158,7 @@ class GelfTcp(GelfBase):
             return getattr(e, 'message', repr(e))
 
         for message in messages:
-            gelf_message = GelfBase.make(self, message)
+            gelf_message = GelfBase.make(self, message, timestamp)
             """ Transforming GELF dictionary into bytes """
             bytes_msg = json.dumps(gelf_message).encode('utf-8')
 
@@ -164,10 +173,12 @@ class GelfTcp(GelfBase):
 
 
 class GelfHttp(GelfBase):
-    async def http_handler(self, message):
+    async def http_handler(self, message, timestamp: Optional = None):
         """
         http handler for send logs to Graylog Input with type: gelf http
         :param message: input message
+        :param timestamp: event timestamp in the format: seconds since UNIX epoch with optional decimal places for
+        milliseconds
         :return: http status code
         """
         header = {
@@ -177,7 +188,7 @@ class GelfHttp(GelfBase):
         if self.compress:
             header.update({'Content-Encoding': 'gzip,deflate'})
 
-        gelf_message = GelfBase.make(self, message)
+        gelf_message = GelfBase.make(self, message, timestamp)
 
         if self.tls:
             ssl_contex = ssl.create_default_context()
@@ -221,10 +232,12 @@ class GelfHttp(GelfBase):
 
 
 class GelfUdp(GelfBase):
-    async def udp_handler(self, message):
+    async def udp_handler(self, message, timestamp: Optional = None):
         """
         UDP handler for send logs to Graylog Input with type: gelf udp
         :param message: input message
+        :param timestamp: event timestamp in the format: seconds since UNIX epoch with optional decimal places for
+        milliseconds
         :return: error in next case: message size more than 1048576 bytes
         """
         """
@@ -235,7 +248,7 @@ class GelfUdp(GelfBase):
 
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        gelf_message = GelfBase.make(self, message)
+        gelf_message = GelfBase.make(self, message, timestamp)
         bytes_msg = json.dumps(gelf_message).encode('utf-8')
 
         if self.compress:
