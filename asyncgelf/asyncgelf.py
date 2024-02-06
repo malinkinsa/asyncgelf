@@ -223,8 +223,7 @@ class GelfHttp(GelfBase):
 
         if len(messages) > 1:
             # Remove the last "\r\n" from bulk_message
-            bulk_message = bulk_message.rstrip("\r\n")
-            gelf_message = bulk_messages
+            gelf_message = bulk_messages.rstrip("\r\n")
         else:
             # Dumping the gelf_message dictionary to a JSON string
             gelf_message = json.dumps(gelf_message)
