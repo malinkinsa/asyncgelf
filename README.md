@@ -45,6 +45,26 @@ async def main(message):
 asyncio.run(main(message))
 ```
 
+### GELF TCP with custom timestamp
+
+```python
+import asyncio
+import asyncgelf
+
+from datetime import datetime
+
+
+async def main(message):
+    handler = asyncgelf.GelfTcp(
+        host='127.0.0.1',
+    )
+    event_time = "2024-02-06 08:25:56.789"
+    timeformat = "%Y-%m-%d %H:%M:%S.%f"
+    await handler.tcp_handler(message, datetime.strptime(event_time, timeformat).timestamp())
+
+asyncio.run(main(message))
+```
+
 ### GELF HTTP 
 
 ```python

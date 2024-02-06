@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='asyncgelf',
-    version='1.1.0',
+    version='1.2.0',
     author='Sergey Malinkin',
     author_email='malinkinsa@yandex.ru',
     url='https://github.com/malinkinsa/asyncgelf',
-    download_url='https://github.com/malinkinsa/asyncgelf/archive/refs/tags/1.1.0.tar.gz',
+    download_url='https://github.com/malinkinsa/asyncgelf/archive/refs/tags/1.2.0.tar.gz',
     description='Async python logging handlers that send messages in the Graylog Extended Log Format (GELF).',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
@@ -22,6 +22,7 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Logging',
     ],
